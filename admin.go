@@ -1,4 +1,4 @@
-package conftmpl
+package confclient
 
 import (
 	"encoding/json"

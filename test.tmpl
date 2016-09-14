@@ -1,0 +1,46 @@
+Testing single hash field
+
+db_policy/name: {{key "db_policy/name" "narf"}}
+
+
+
+Testing array
+
+{{range list "arraytest"}}
+  Entry: {{.}}
+{{end}}
+
+
+Testing hash
+{{range hash "db_policy"}}
+  <!-- From: {{.Source}} -->
+  <attr key='{{.Key}}' val='{{.Value}}'/>{{end}}
+
+
+blarf:
+
+{{key "db_policy/pod_asdfconfig" "mydefault"}}
+
+
+
+
+DEBUG: Testing array
+
+{{range listd "arraytest"}}
+  Entry: {{.Value}} (From: {{.Source}})
+{{end}}
+
+
+DEBUG: Testing string:
+
+{{with keyd "string" "somethingdef"}}
+	Value: {{.Value}}
+	Source: {{.Source}}
+{{end}}
+
+
+DEBUG: Testing string with default
+{{with keyd "stringnoexist" "thedefault"}}
+	Value: {{.Value}}
+	Source: {{.Source}}
+{{end}}

@@ -1,0 +1,100 @@
+# bash completion for confadm
+
+_confadm_operations()
+{
+    local ops
+    ops="get set list del hset related geta hget hgeta gett lget type"
+    COMPREPLY=( $( compgen -W '$ops' -- "$1" ) )
+}
+
+_confadm_listkeys()
+{
+    local keys
+    keys=`confadm list "${1}*" 2>/dev/null| tr '\n' ' '`
+    COMPREPLY=( $( compgen -W '$keys' -- "$1" ) )
+}
+
+_confadm_listfields()
+{
+    local fields
+    thekey=`sed -e 's/^"//' -e 's/"$//' <<< $1`
+    fields=`confadm hlist $thekey 2>/dev/null| tr '\n' ' '`
+    COMPREPLY=( $( compgen -W '$fields' -- "$2" ) )
+}
+
+_confadm_new()
+{
+    COMPREPLY=()
+    local cur prev operation
+    _get_comp_words_by_ref -n cur prev
+    _expand || return 0
+    if [ $COMP_CWORD -eq 1 ]; then
+        _confadm_operations $2
+    else
+        operation=${COMP_WORDS[1]}
+        case $operation in
+            get)
+                ;&
+            gett)
+                ;&
+            set)
+                ;&
+            del)
+                ;&
+            type)
+                ;&
+            related)
+                _confadm_listkeys $2
+                return 0
+                ;;
+            hset)
+                ;&
+            hget)
+                if [ $COMP_CWORD -eq 2 ]; then 
+                    _confadm_listkeys $2
+                elif [ $COMP_CWORD -eq 3 ]; then
+                    # have key, need field
+                    _confadm_listfields $3 $2
+                fi
+                return 0
+                ;;
+            lget)
+                if [ $COMP_CWORD -eq 2 ]; then 
+                    _confadm_listkeys $2
+                elif [ $COMP_CWORD -eq 3 ]; then
+                    # have key, need index
+                    COMPREPLY=( $( compgen -W '0 1 2 3 4 5 6 7 8 9' -- "$2" ) )
+                fi
+                return 0
+                ;;
+            *)
+                return 0
+                ;;
+        esac
+    fi
+} &&
+complete -F _confadm_new confadm
+
+#_confadm ()
+#{
+#    COMPREPLY=()
+#    local cur prev operation
+#    _get_comp_words_by_ref -n : cur prev
+#    _expand || return 0
+#
+#    if [ $COMP_CWORD -eq 1 ]; then
+#        _confadm_operations
+#    else
+#        operation=${COMP_WORDS[1]}
+#        #echo "operation: $operation / prev: $prev / cur: $cur"
+#        case $operation in
+#            get)
+#                _confadm_listkeys $cur
+#                return 0
+#                ;;
+#        esac
+#    fi
+#} &&
+#complete -F _confadm confadm
+
+# ex: ts=4 sw=4 et filetype=sh

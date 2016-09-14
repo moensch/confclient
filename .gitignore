@@ -22,3 +22,9 @@ _testmain.go
 *.exe
 *.test
 *.prof
+
+bin/*
+coverage.out
+coverage.html
+coverage_cobertura.xml
+test_results.xml

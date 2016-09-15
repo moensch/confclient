@@ -22,7 +22,7 @@ _confadm_listfields()
     COMPREPLY=( $( compgen -W '$fields' -- "$2" ) )
 }
 
-_confadm_new()
+_confadm()
 {
     COMPREPLY=()
     local cur prev operation
@@ -73,28 +73,6 @@ _confadm_new()
         esac
     fi
 } &&
-complete -F _confadm_new confadm
-
-#_confadm ()
-#{
-#    COMPREPLY=()
-#    local cur prev operation
-#    _get_comp_words_by_ref -n : cur prev
-#    _expand || return 0
-#
-#    if [ $COMP_CWORD -eq 1 ]; then
-#        _confadm_operations
-#    else
-#        operation=${COMP_WORDS[1]}
-#        #echo "operation: $operation / prev: $prev / cur: $cur"
-#        case $operation in
-#            get)
-#                _confadm_listkeys $cur
-#                return 0
-#                ;;
-#        esac
-#    fi
-#} &&
-#complete -F _confadm confadm
+complete -F _confadm confadm
 
 # ex: ts=4 sw=4 et filetype=sh

@@ -4,5 +4,5 @@ echo "Building..."
 
 mkdir -p bin
 go get
-go build -o ./bin/conftmpl ./cmd/conftmpl
+go build -o ./bin/conftpl ./cmd/conftpl
 go build -o ./bin/confadm ./cmd/confadm

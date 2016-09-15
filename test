@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+set -e
+set -x
+
+echo "Running tests..."
+redis-cli set cfg:test:string testing
+redis-cli rpush cfg:test:array entry1
+redis-cli rpush cfg:test:array entry2
+redis-cli rpush cfg:test:array entry3
+redis-cli hset cfg:test:hash field "myvalue"
+
+echo "Running confmgr..."
+$GOPATH/bin/confmgr &
+sleep 3
+
+go test -v .

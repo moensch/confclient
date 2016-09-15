@@ -14,14 +14,14 @@ func TestMakeRequest(t *testing.T) {
 	}
 	t.Logf("Body: %s", body)
 
-	body, err = c.GETRequestJSON("/hash/db_policy")
+	body, err = c.GETRequestJSON("/hash/hash")
 	if err != nil {
 		t.Logf("Error: %s", err)
 		t.Fail()
 	}
 	t.Logf("Body: %s", body)
 
-	body, err = c.GETRequestJSON("/list/arraytest")
+	body, err = c.GETRequestJSON("/list/array")
 	if err != nil {
 		t.Logf("Error: %s", err)
 		t.Fail()
@@ -32,7 +32,7 @@ func TestMakeRequest(t *testing.T) {
 func TestGetStringValue(t *testing.T) {
 	c := InitiateClient("http://localhost:8080/")
 
-	resp, err := c.GetStringValue("db_policy/name", "")
+	resp, err := c.GetStringValue("hash/field", "")
 	if err != nil {
 		t.Logf("Error: %s", err)
 		t.Fail()
@@ -44,7 +44,7 @@ func TestGetStringValue(t *testing.T) {
 func TestGetHash(t *testing.T) {
 	c := InitiateClient("http://localhost:8080/")
 
-	resp, err := c.GetHashValue("db_policy")
+	resp, err := c.GetHashValue("hash")
 	if err != nil {
 		t.Logf("Error: %s", err)
 		t.Fail()
@@ -58,7 +58,7 @@ func TestGetHash(t *testing.T) {
 func TestGetList(t *testing.T) {
 	c := InitiateClient("http://localhost:8080/")
 
-	resp, err := c.GetListValue("arraytest")
+	resp, err := c.GetListValue("array")
 	if err != nil {
 		t.Logf("Error: %s", err)
 		t.Fail()

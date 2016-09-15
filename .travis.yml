@@ -1,0 +1,15 @@
+language: go
+go:
+  - 1.6
+services:
+  - redis
+install:
+  - go get github.com/jstemmer/go-junit-report
+  - go get github.com/axw/gocov/gocov
+  - go get github.com/AlekSi/gocov-xml
+  - ./build
+  - sudo ./install
+before_script:
+  - go get github.com/moensch/confmgr/cmd/confmgr
+script:
+  - ./test

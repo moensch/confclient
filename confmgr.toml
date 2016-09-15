@@ -1,0 +1,21 @@
+[listen]
+port = 8080
+address = "0.0.0.0"
+
+[backends.redis]
+port = 6379
+address = "127.0.0.1"
+
+[main]
+key_paths = [
+  "nodes:%{fqdn}",
+  "pods:%{pod}",
+  "sites:%{site}:groups:%{group}",
+  "sites:%{site}",
+  "databases",
+  "global",
+  "default",
+  "test"
+]
+key_prefix = "cfg:"
+hdr_prefix = "x-cfg-"

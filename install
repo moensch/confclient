@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+BIN_DIR=${BIN_DIR:-/usr/local/bin}
+INSTALL=install
+
+echo "Installing conftmpl to $BIN_DIR/conftmpl"
+$INSTALL -c bin/conftmpl $BIN_DIR/conftmpl
+echo "Installing confadm to $BIN_DIR/confadm"
+$INSTALL -c bin/confadm $BIN_DIR/confadm
+$INSTALL confmgr.toml /etc/confmgr.toml

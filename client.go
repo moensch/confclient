@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	log "github.com/Sirupsen/logrus"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -33,7 +33,7 @@ func InitiateClient(url string) *Client {
 		varname := strings.ToLower(e[:index])
 		if strings.HasPrefix(varname, "cfg_") {
 			scopevar := strings.TrimPrefix(varname, "cfg_")
-			log.Printf("Scope: %s => %s", scopevar, e[index+1:])
+			log.WithFields(log.Fields{scopevar: e[index+1:]}).Info("Using scope")
 			client.scopeVars[scopevar] = e[index+1:]
 		}
 	}
@@ -103,7 +103,6 @@ func (c *Client) GETRequest(path string, accept string) ([]byte, error) {
 
 	// Send scope variables as x-cfg-blah request headers
 	for scopeKey, scopeVal := range c.scopeVars {
-		log.Printf("Setting header x-cfg-%s: %s", scopeKey, scopeVal)
 		req.Header.Add("x-cfg-"+scopeKey, scopeVal)
 	}
 
@@ -113,11 +112,12 @@ func (c *Client) GETRequest(path string, accept string) ([]byte, error) {
 	}
 	defer resp.Body.Close()
 
-	//log.Printf("GET %s\t[%d]", req_url, resp.StatusCode)
-
+	l := log.WithFields(log.Fields{"url": req_url, "httpcode": resp.StatusCode, "method": "GET"})
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		l.Warn("HTTP error")
 		return nil, errors.New(fmt.Sprintf("HTTP Error %d", resp.StatusCode))
 	}
+	l.Debug("HTTP log")
 
 	return ioutil.ReadAll(resp.Body)
 
@@ -134,11 +134,13 @@ func (c *Client) POSTRequestJSON(path string, data []byte) ([]byte, error) {
 	}
 	defer resp.Body.Close()
 
-	//log.Printf("POST %s\t[%d]", req_url, resp.StatusCode)
+	l := log.WithFields(log.Fields{"url": req_url, "httpcode": resp.StatusCode, "method": "POST"})
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		l.Warn("HTTP error")
 		return nil, errors.New(fmt.Sprintf("HTTP Error %d", resp.StatusCode))
 	}
+	l.Debug("HTTP log")
 
 	return ioutil.ReadAll(resp.Body)
 }
@@ -153,11 +155,12 @@ func (c *Client) DELETERequest(path string) ([]byte, error) {
 	}
 	defer resp.Body.Close()
 
-	//log.Printf("DELETE %s\t[%d]", req_url, resp.StatusCode)
+	l := log.WithFields(log.Fields{"url": req_url, "httpcode": resp.StatusCode, "method": "DELETE"})
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		l.Warn("HTTP error")
 		return nil, errors.New(fmt.Sprintf("HTTP Error %d", resp.StatusCode))
 	}
-
+	l.Debug("HTTP log")
 	return ioutil.ReadAll(resp.Body)
 }

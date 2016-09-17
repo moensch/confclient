@@ -4,9 +4,9 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
+	log "github.com/Sirupsen/logrus"
 	"github.com/moensch/confclient"
 	"io/ioutil"
-	"log"
 	"os"
 	"strings"
 )
@@ -17,12 +17,14 @@ var (
 	configMgrUrl  string
 	configMgrUser string
 	configMgrPass string
+	logLevel      string
 )
 
 func init() {
 	flag.StringVar(&configMgrUser, "u", os.Getenv("CONFIGMGR_USER"), "Username")
 	flag.StringVar(&configMgrPass, "p", os.Getenv("CONFIGMGR_PASS"), "Password")
 	flag.StringVar(&configMgrUrl, "s", os.Getenv("CONFIGMGR_URL"), "Config manager URL")
+	flag.StringVar(&logLevel, "l", "info", "Log level (debug|info|warn|error")
 
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage for %s:\n", os.Args[0])
@@ -33,7 +35,6 @@ func init() {
 		fmt.Fprintf(os.Stderr, "  set <key>                   : Set a key from JSON read from stdin\n")
 		fmt.Fprintf(os.Stderr, "  set <key> <value>           : Set a STRING key from parameter\n")
 		fmt.Fprintf(os.Stderr, "  del <key>                   : Delete a key\n")
-		fmt.Fprintf(os.Stderr, "  list <filter>               : List matching keys\n")
 		fmt.Fprintf(os.Stderr, "  list <filter>               : List matching keys\n")
 		fmt.Fprintf(os.Stderr, "  type <key>                  : Get Key Type\n")
 		fmt.Fprintf(os.Stderr, "  hget <key> <field>          : Get just one field from a hash\n")
@@ -47,7 +48,10 @@ func init() {
 
 func main() {
 	flag.Parse()
+	lvl, _ := log.ParseLevel(logLevel)
+	log.SetLevel(lvl)
 	if flag.NArg() < 2 {
+		log.Warnf("Not enough args. Need 2, have %s", flag.NArg())
 		flag.Usage()
 		os.Exit(1)
 	}
@@ -55,6 +59,9 @@ func main() {
 	keyName = flag.Arg(1)
 
 	if operation == "" || configMgrUrl == "" || keyName == "" {
+		log.Infof("Operation: %s", operation)
+		log.Infof("configMgrUrl: %s", configMgrUrl)
+		log.Infof("keyName: %s", keyName)
 		flag.Usage()
 		os.Exit(1)
 	}
@@ -84,7 +91,7 @@ func main() {
 		for _, k := range keys {
 			fmt.Printf("%s\n", k)
 		}
-		//log.Print("LIST OK")
+		log.Debug("LIST OK")
 	case "list":
 		keys, err := c.AdminListKeys(keyName)
 		if err != nil {
@@ -93,42 +100,43 @@ func main() {
 		for _, k := range keys {
 			fmt.Printf("%s\n", k)
 		}
-		//log.Print("LIST OK")
+		log.Debug("LIST OK")
 	case "hlist":
 		keys, err := c.AdminListHashFields(keyName)
 		if err != nil {
-			log.Fatalf("ERROR: %s", err)
+			log.Debug("ERROR: %s", err)
 		}
 		for _, k := range keys {
 			fmt.Printf("%s\n", k)
 		}
-		//log.Print("HIST OK")
+		log.Debug("HLIST OK")
 	case "del":
 		err := c.AdminDeleteKey(keyName)
 		if err != nil {
 			log.Fatalf("ERROR: %s", err)
 		}
-		//log.Print("DEL OK")
+		log.Debug("DEL OK")
 	case "gett":
 		stringresp, err := c.AdminGetKeyAsTEXT(keyName)
 		if err != nil {
 			log.Fatalf("ERROR: %s", err)
 		}
 		fmt.Printf("%s\n", stringresp)
-		//log.Print("GET OK")
+		log.Debug("GETT OK")
 	case "get":
 		jsonblob, err := c.AdminGetKeyAsJSON(keyName)
 		if err != nil {
 			log.Fatalf("ERROR: %s", err)
 		}
 		fmt.Printf("%s\n", string(jsonblob))
-		//log.Print("GET OK")
+		log.Print("GET OK")
 	case "type":
 		ktype, err := c.AdminGetKeyType(keyName)
 		if err != nil {
 			log.Fatalf("ERROR: %s", err)
 		}
 		fmt.Printf("%s\n", ktype)
+		log.Debug("TYPE OK")
 	case "set":
 		if flag.NArg() >= 3 {
 			// Someone also passed in a value
@@ -151,7 +159,7 @@ func main() {
 				log.Fatalf("ERROR: %s", err)
 			}
 		}
-		//log.Print("SET OK")
+		log.Debug("SET OK")
 	case "hgeta":
 		if flag.NArg() < 3 {
 			flag.Usage()
@@ -196,7 +204,17 @@ func main() {
 			log.Fatalf("ERROR: %s", err)
 		}
 		fmt.Printf("%s\n", val)
-		//log.Print("HGET OK")
+		log.Debug("HGET OK")
+	case "lpush":
+		if flag.NArg() < 3 {
+			flag.Usage()
+			os.Exit(1)
+		}
+		stringval := flag.Arg(2)
+		err := c.AdminListAppend(keyName, stringval)
+		if err != nil {
+			log.Fatalf("ERROR: %s", err)
+		}
 	case "hset":
 		if flag.NArg() < 4 {
 			flag.Usage()
@@ -209,7 +227,7 @@ func main() {
 		if err != nil {
 			log.Fatalf("ERROR: %s", err)
 		}
-		//log.Print("HSET OK")
+		log.Debug("HSET OK")
 	case "lget":
 		if flag.NArg() < 3 {
 			flag.Usage()
@@ -222,6 +240,6 @@ func main() {
 			log.Fatalf("ERROR: %s", err)
 		}
 		fmt.Printf("%s\n", val)
-		//log.Print("HGET OK")
+		log.Debug("LGET OK")
 	}
 }

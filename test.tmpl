@@ -10,6 +10,12 @@ Testing array
   Entry: {{.}}
 {{end}}
 
+Testing array with index
+
+{{range $index, $entry := list "arraytest"}}
+  Entry: {{$index}} {{$entry}}
+{{end}}
+
 
 Testing hash
 {{range hash "db_policy"}}

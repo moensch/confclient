@@ -100,6 +100,18 @@ func (c *Client) AdminSetStringKey(keyName string, value string) error {
 	return err
 }
 
+func (c *Client) AdminListAppend(keyName string, value string) error {
+	req := &DataRequest{value}
+
+	jsonblob, err := json.Marshal(req)
+	if err != nil {
+		return err
+	}
+
+	_, err = c.POSTRequestJSON(fmt.Sprintf("/admin/key/append/%s", keyName), jsonblob)
+	return err
+}
+
 func (c *Client) AdminSetHashField(keyName string, fieldName string, value string) error {
 	req := &DataRequest{value}
 

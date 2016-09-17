@@ -1,5 +1,9 @@
 package confclient
 
+import (
+	log "github.com/Sirupsen/logrus"
+)
+
 type KeyPair struct {
 	Key    string
 	Value  string
@@ -36,7 +40,12 @@ func (c *Client) GetListValue(key string) ([]string, error) {
 		return strings, err
 	}
 
-	for _, v := range resp.Data {
+	for idx, v := range resp.Data {
+		log.WithFields(log.Fields{
+			"key":    key,
+			"index":  idx,
+			"source": v.Source,
+		}).Debug("Got list entry")
 		strings = append(strings, v.Value)
 	}
 
@@ -53,6 +62,14 @@ func (c *Client) GetListValueDebug(key string) ([]ValueSource, error) {
 		return strings, err
 	}
 
+	for idx, v := range resp.Data {
+		log.WithFields(log.Fields{
+			"key":    key,
+			"index":  idx,
+			"source": v.Source,
+		}).Debug("Got list entry")
+	}
+
 	return resp.Data, err
 }
 
@@ -67,26 +84,36 @@ func (c *Client) GetHashValue(key string) ([]KeyPair, error) {
 	}
 
 	for k, v := range resp.Data {
+		log.WithFields(log.Fields{
+			"key":    key,
+			"field":  k,
+			"source": v.Source,
+		}).Debug("Got hash key")
 		keypairs = append(keypairs, KeyPair{k, v.Value, v.Source})
 	}
 	return keypairs, err
 }
 
 func (c *Client) GetStringValueDebug(key string, v ...string) (ValueSource, error) {
-	defaultValue := ValueSource{}
+	defaultValue := ValueSource{"", "__DEFAULT__"}
 	if len(v) > 0 {
 		defaultValue.Value = v[0]
 	}
 
 	resp, err := c.GetString(key)
-	if err != nil {
+	if err != nil || resp.Data.Value == "" {
 		// Errors return empty string
+		log.WithFields(log.Fields{
+			"key":    key,
+			"source": "DEFAULT",
+		}).Debug("Got string val")
 		return defaultValue, nil
 	}
 
-	if resp.Data.Value == "" {
-		return defaultValue, err
-	}
+	log.WithFields(log.Fields{
+		"key":    key,
+		"source": resp.Data.Source,
+	}).Debug("Got string val")
 	return resp.Data, err
 }
 
@@ -97,13 +124,18 @@ func (c *Client) GetStringValue(key string, v ...string) (string, error) {
 	}
 
 	resp, err := c.GetString(key)
-	if err != nil {
+	if err != nil || resp.Data.Value == "" {
 		// Errors return empty string
+		log.WithFields(log.Fields{
+			"key":    key,
+			"source": "DEFAULT",
+		}).Debug("Got string val")
 		return defaultValue, nil
 	}
 
-	if resp.Data.Value == "" {
-		return defaultValue, err
-	}
+	log.WithFields(log.Fields{
+		"key":    key,
+		"source": resp.Data.Source,
+	}).Debug("Got string val")
 	return resp.Data.Value, err
 }

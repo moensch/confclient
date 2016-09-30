@@ -6,3 +6,9 @@ mkdir -p bin
 go get
 go build -o ./bin/conftpl ./cmd/conftpl
 go build -o ./bin/confadm ./cmd/confadm
+
+if [[ -n "$1" && "$1" == "static" ]]; then
+  echo "Building static binary..."
+  CGO_ENABLED=0 GOOS=linux go build -ldflags "-s" -a -o ./bin/conftpl-static -installsuffix cgo ./cmd/conftpl
+  CGO_ENABLED=0 GOOS=linux go build -ldflags "-s" -a -o ./bin/confadm-static -installsuffix cgo ./cmd/confadm
+fi

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 )
 
 type KeyResponse struct {
@@ -85,7 +86,13 @@ func (c *Client) AdminGetListIndex(keyName string, index string) (string, error)
 func (c *Client) AdminSetStringKey(keyName string, value string) error {
 	ktype, err := c.AdminGetKeyType(keyName)
 	if err != nil {
-		return err
+		// Ignore 404
+		if !strings.Contains(err.Error(), "404") {
+			// This is bad, string matching an error, but it gets shit done for now
+			return err
+		}
+		// Key does not exist - so we will create a string key
+		ktype = "string"
 	}
 	if ktype != "string" {
 		return errors.New(fmt.Sprintf("Can only set keys of type 'string' via parameter - type '%s' not supported!", ktype))
@@ -108,7 +115,7 @@ func (c *Client) AdminListAppend(keyName string, value string) error {
 		return err
 	}
 
-	_, err = c.POSTRequestJSON(fmt.Sprintf("/admin/key/append/%s", keyName), jsonblob)
+	_, err = c.PATCHRequestJSON(fmt.Sprintf("/admin/key/append/%s", keyName), jsonblob)
 	return err
 }
 

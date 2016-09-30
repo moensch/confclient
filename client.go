@@ -123,6 +123,28 @@ func (c *Client) GETRequest(path string, accept string) ([]byte, error) {
 
 }
 
+func (c *Client) PATCHRequestJSON(path string, data []byte) ([]byte, error) {
+	req_url := strings.Join([]string{c.url, path}, "")
+	req, err := http.NewRequest("PATCH", req_url, bytes.NewBuffer(data))
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	l := log.WithFields(log.Fields{"url": req_url, "httpcode": resp.StatusCode, "method": "POST"})
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		l.Warn("HTTP error")
+		return nil, errors.New(fmt.Sprintf("HTTP Error %d", resp.StatusCode))
+	}
+	l.Debug("HTTP log")
+
+	return ioutil.ReadAll(resp.Body)
+}
+
 func (c *Client) POSTRequestJSON(path string, data []byte) ([]byte, error) {
 	req_url := strings.Join([]string{c.url, path}, "")
 	req, err := http.NewRequest("POST", req_url, bytes.NewBuffer(data))

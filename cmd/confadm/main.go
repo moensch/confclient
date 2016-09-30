@@ -41,6 +41,7 @@ func init() {
 		fmt.Fprintf(os.Stderr, "  hset <key> <field> <value>  : Set just one field in a hash\n")
 		fmt.Fprintf(os.Stderr, "  hgeta <key-partial> <field> : Get every place this key field is defined\n")
 		fmt.Fprintf(os.Stderr, "  lget <key> <index>          : Get list item at position\n")
+		fmt.Fprintf(os.Stderr, "  lpush <key> <value>         : Add entry to list (or create new list if it does not exist)\n")
 		fmt.Fprintf(os.Stderr, "\n\nConfig:\n")
 		flag.PrintDefaults()
 	}

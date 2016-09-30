@@ -2,6 +2,7 @@ package confclient
 
 import (
 	log "github.com/Sirupsen/logrus"
+	"strings"
 )
 
 type KeyPair struct {
@@ -28,6 +29,15 @@ type StringResponse struct {
 type ValueSource struct {
 	Value  string `json:"value"`
 	Source string `json:"source"`
+}
+
+func (c *Client) GetListValueJoined(key string, join_char string) (string, error) {
+	list, err := c.GetListValue(key)
+	if err != nil {
+		return "", err
+	}
+
+	return strings.Join(list, join_char), nil
 }
 
 func (c *Client) GetListValue(key string) ([]string, error) {

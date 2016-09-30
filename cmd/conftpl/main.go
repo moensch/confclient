@@ -40,7 +40,7 @@ func main() {
 		// Want a single key
 		val, err := c.GetString(requestKey)
 		if err != nil {
-			log.Fatal("ERROR: %s\n", err)
+			log.Fatalf("ERROR: %s\n", err)
 		}
 		fmt.Printf("%s", val.Data.Value)
 		os.Exit(0)
@@ -51,6 +51,7 @@ func main() {
 			"key":   c.GetStringValue,
 			"keyd":  c.GetStringValueDebug,
 			"list":  c.GetListValue,
+			"listj": c.GetListValueJoined,
 			"listd": c.GetListValueDebug,
 			"hash":  c.GetHashValue,
 		}

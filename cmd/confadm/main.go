@@ -24,7 +24,7 @@ func init() {
 	flag.StringVar(&configMgrUser, "u", os.Getenv("CONFIGMGR_USER"), "Username")
 	flag.StringVar(&configMgrPass, "p", os.Getenv("CONFIGMGR_PASS"), "Password")
 	flag.StringVar(&configMgrUrl, "s", os.Getenv("CONFIGMGR_URL"), "Config manager URL")
-	flag.StringVar(&logLevel, "l", "info", "Log level (debug|info|warn|error")
+	flag.StringVar(&logLevel, "l", "error", "Log level (debug|info|warn|error)")
 
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage for %s:\n", os.Args[0])

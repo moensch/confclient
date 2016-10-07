@@ -34,6 +34,9 @@ func main() {
 	flag.Parse()
 	lvl, _ := log.ParseLevel(logLevel)
 	log.SetLevel(lvl)
+	if configMgrUrl == "" {
+		log.Fatal("configMgrUrl not set. Either set -u parameter or CONFIGMGR_URL environment variable")
+	}
 	var c = confclient.InitiateClient(configMgrUrl)
 
 	if requestKey != "" {

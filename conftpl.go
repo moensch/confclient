@@ -105,47 +105,65 @@ func (c *Client) GetHashValue(key string) ([]KeyPair, error) {
 }
 
 func (c *Client) GetStringValueDebug(key string, v ...string) (ValueSource, error) {
+	var hasDefault bool
+	hasDefault = false
 	defaultValue := ValueSource{"", "__DEFAULT__"}
 	if len(v) > 0 {
+		hasDefault = true
 		defaultValue.Value = v[0]
 	}
 
 	resp, err := c.GetString(key)
-	if err != nil || resp.Data.Value == "" {
-		// Errors return empty string
+	switch {
+	case err != nil && hasDefault:
+		// got an error, but we have a default value
 		log.WithFields(log.Fields{
 			"key":    key,
 			"source": "DEFAULT",
 		}).Debug("Got string val")
 		return defaultValue, nil
+	case err != nil:
+		log.WithFields(log.Fields{
+			"key": key,
+		}).Errorf("Cannot get string key and no default value provided: %s", err)
+		return defaultValue, err
+	default:
+		log.WithFields(log.Fields{
+			"key":    key,
+			"source": resp.Data.Source,
+		}).Debug("Got string val")
+		return resp.Data, err
 	}
-
-	log.WithFields(log.Fields{
-		"key":    key,
-		"source": resp.Data.Source,
-	}).Debug("Got string val")
-	return resp.Data, err
 }
 
 func (c *Client) GetStringValue(key string, v ...string) (string, error) {
+	var hasDefault bool
+	hasDefault = false
 	defaultValue := ""
 	if len(v) > 0 {
+		hasDefault = true
 		defaultValue = v[0]
 	}
 
 	resp, err := c.GetString(key)
-	if err != nil || resp.Data.Value == "" {
-		// Errors return empty string
+	switch {
+	case err != nil && hasDefault:
+		// got an error, but we have a default value
 		log.WithFields(log.Fields{
 			"key":    key,
 			"source": "DEFAULT",
 		}).Debug("Got string val")
 		return defaultValue, nil
+	case err != nil:
+		log.WithFields(log.Fields{
+			"key": key,
+		}).Errorf("Cannot get string key and no default value provided: %s", err)
+		return "", err
+	default:
+		log.WithFields(log.Fields{
+			"key":    key,
+			"source": resp.Data.Source,
+		}).Debug("Got string val")
+		return resp.Data.Value, err
 	}
-
-	log.WithFields(log.Fields{
-		"key":    key,
-		"source": resp.Data.Source,
-	}).Debug("Got string val")
-	return resp.Data.Value, err
 }

@@ -40,6 +40,17 @@ func (c *Client) GetListValueJoined(key string, join_char string) (string, error
 	return strings.Join(list, join_char), nil
 }
 
+func (c *Client) ListExists(key string) (bool, error) {
+	_, err := c.GetList(key)
+
+	if err != nil {
+		// Does not exist
+		return false, nil
+	}
+
+	return true, nil
+}
+
 func (c *Client) GetListValue(key string) ([]string, error) {
 	var strings = make([]string, 0)
 
@@ -81,6 +92,17 @@ func (c *Client) GetListValueDebug(key string) ([]ValueSource, error) {
 	}
 
 	return resp.Data, err
+}
+
+func (c *Client) HashExists(key string) (bool, error) {
+	_, err := c.GetHash(key)
+
+	if err != nil {
+		// Does not exist
+		return false, nil
+	}
+
+	return true, nil
 }
 
 func (c *Client) GetHashValue(key string) ([]KeyPair, error) {
@@ -134,6 +156,17 @@ func (c *Client) GetStringValueDebug(key string, v ...string) (ValueSource, erro
 		}).Debug("Got string val")
 		return resp.Data, err
 	}
+}
+
+func (c *Client) StringExists(key string) (bool, error) {
+	_, err := c.GetString(key)
+
+	if err != nil {
+		// Does not exist
+		return false, nil
+	}
+
+	return true, nil
 }
 
 func (c *Client) GetStringValue(key string, v ...string) (string, error) {

@@ -51,12 +51,15 @@ func main() {
 	if templateFile != "" {
 		log.WithFields(log.Fields{"file": templateFile}).Info("Processing template")
 		myFuncMap := template.FuncMap{
-			"key":   c.GetStringValue,
-			"keyd":  c.GetStringValueDebug,
-			"list":  c.GetListValue,
-			"listj": c.GetListValueJoined,
-			"listd": c.GetListValueDebug,
-			"hash":  c.GetHashValue,
+			"key":     c.GetStringValue,
+			"keyd":    c.GetStringValueDebug,
+			"list":    c.GetListValue,
+			"listj":   c.GetListValueJoined,
+			"listd":   c.GetListValueDebug,
+			"hash":    c.GetHashValue,
+			"hexists": c.HashExists,
+			"sexists": c.StringExists,
+			"lexists": c.ListExists,
 		}
 		tmpl, err := template.New(path.Base(templateFile)).Funcs(myFuncMap).ParseFiles(templateFile)
 		if err != nil {

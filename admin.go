@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	log "github.com/Sirupsen/logrus"
+	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -157,6 +160,55 @@ func (c *Client) AdminListKeys(filter string) ([]string, error) {
 		return keys, err
 	}
 	return resp.Data, err
+}
+
+func (c *Client) AdminDumpKeys(output string) error {
+	err := os.MkdirAll(output, 0755)
+	if err != nil {
+		return err
+	}
+	body, err := c.GETRequestJSON("/admin/keys/*")
+	if err != nil {
+		return err
+	}
+
+	var resp SimpleListResponse
+	if err = json.Unmarshal(body, &resp); err != nil {
+		return err
+	}
+
+	for _, k := range resp.Data {
+		log.Debugf("Dumping key %s", k)
+		resp, err := c.GETRequestJSON(fmt.Sprintf("/admin/key/%s", k))
+		if err != nil {
+			return err
+		}
+		var keyResponse KeyResponse
+		if err := json.Unmarshal(resp, &keyResponse); err != nil {
+			return err
+		}
+		jsonblob, err := json.MarshalIndent(keyResponse, "", "  ")
+		if err != nil {
+			return err
+		}
+
+		localfile := filepath.Join(output, k)
+		fh, err := os.OpenFile(localfile, os.O_WRONLY|os.O_CREATE, 0755)
+		if err != nil {
+			return err
+		}
+		log.Debugf("  Writing %d bytes to %s", len(jsonblob), localfile)
+		written, err := fh.Write(jsonblob)
+		if err != nil {
+			return err
+		}
+		log.Debugf("    Wrote %d bytes", written)
+		if written != len(jsonblob) {
+			return fmt.Errorf("Partial write for %s. Should have written %d, but only wrote %d", localfile, len(jsonblob), written)
+		}
+	}
+
+	return nil
 }
 
 func (c *Client) AdminListHashFields(keyName string) ([]string, error) {

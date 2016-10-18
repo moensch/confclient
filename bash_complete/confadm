@@ -3,7 +3,7 @@
 _confadm_operations()
 {
     local ops
-    ops="get set list del hset related geta hget hgeta gett lget type"
+    ops="get set list del hset related geta hget hgeta gett lget lpush type dump"
     COMPREPLY=( $( compgen -W '$ops' -- "$1" ) )
 }
 

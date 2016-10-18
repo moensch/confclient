@@ -42,6 +42,8 @@ func init() {
 		fmt.Fprintf(os.Stderr, "  hgeta <key-partial> <field> : Get every place this key field is defined\n")
 		fmt.Fprintf(os.Stderr, "  lget <key> <index>          : Get list item at position\n")
 		fmt.Fprintf(os.Stderr, "  lpush <key> <value>         : Add entry to list (or create new list if it does not exist)\n")
+		fmt.Fprintf(os.Stderr, "\n")
+		fmt.Fprintf(os.Stderr, "  dump <path>                 : Dump all keys to <path> (can be loaded again with confmgr-load-defaults)\n")
 		fmt.Fprintf(os.Stderr, "\n\nConfig:\n")
 		flag.PrintDefaults()
 	}
@@ -242,5 +244,11 @@ func main() {
 		}
 		fmt.Printf("%s\n", val)
 		log.Debug("LGET OK")
+	case "dump":
+		// Note: keyName is actually the path
+		err := c.AdminDumpKeys(keyName)
+		if err != nil {
+			log.Fatalf("ERROR: %s", err)
+		}
 	}
 }

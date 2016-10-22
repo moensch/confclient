@@ -34,14 +34,17 @@ func init() {
 		fmt.Fprintf(os.Stderr, "  geta <key-partial>          : Get all keys matching this partial key\n")
 		fmt.Fprintf(os.Stderr, "  set <key>                   : Set a key from JSON read from stdin\n")
 		fmt.Fprintf(os.Stderr, "  set <key> <value>           : Set a STRING key from parameter\n")
+		fmt.Fprintf(os.Stderr, "  set <key> -                 : Set a STRING key from STDIN\n")
 		fmt.Fprintf(os.Stderr, "  del <key>                   : Delete a key\n")
-		fmt.Fprintf(os.Stderr, "  list <filter>               : List matching keys\n")
+		fmt.Fprintf(os.Stderr, "  list <filter>               : List matching keys (use '*' to list all)\n")
 		fmt.Fprintf(os.Stderr, "  type <key>                  : Get Key Type\n")
 		fmt.Fprintf(os.Stderr, "  hget <key> <field>          : Get just one field from a hash\n")
 		fmt.Fprintf(os.Stderr, "  hset <key> <field> <value>  : Set just one field in a hash\n")
+		fmt.Fprintf(os.Stderr, "  hset <key> <field> -        : Set just one field in a hash from STDIN\n")
 		fmt.Fprintf(os.Stderr, "  hgeta <key-partial> <field> : Get every place this key field is defined\n")
 		fmt.Fprintf(os.Stderr, "  lget <key> <index>          : Get list item at position\n")
 		fmt.Fprintf(os.Stderr, "  lpush <key> <value>         : Add entry to list (or create new list if it does not exist)\n")
+		fmt.Fprintf(os.Stderr, "  lpush <key> -               : Add entry to list (or create new list if it does not exist) from STDIN\n")
 		fmt.Fprintf(os.Stderr, "\n")
 		fmt.Fprintf(os.Stderr, "  dump <path>                 : Dump all keys to <path> (can be loaded again with confmgr-load-defaults)\n")
 		fmt.Fprintf(os.Stderr, "\n\nConfig:\n")
@@ -144,6 +147,15 @@ func main() {
 		if flag.NArg() >= 3 {
 			// Someone also passed in a value
 			value := flag.Arg(2)
+			if value == "-" {
+				// read from stdin
+				reader := bufio.NewReader(os.Stdin)
+				b, err := ioutil.ReadAll(reader)
+				if err != nil {
+					log.Fatalf("ERROR: %s", err)
+				}
+				value = string(b)
+			}
 			err := c.AdminSetStringKey(keyName, value)
 			if err != nil {
 				log.Fatalf("ERROR: %s", err)
@@ -214,6 +226,15 @@ func main() {
 			os.Exit(1)
 		}
 		stringval := flag.Arg(2)
+		if stringval == "-" {
+			// read from stdin
+			reader := bufio.NewReader(os.Stdin)
+			b, err := ioutil.ReadAll(reader)
+			if err != nil {
+				log.Fatalf("ERROR: %s", err)
+			}
+			stringval = string(b)
+		}
 		err := c.AdminListAppend(keyName, stringval)
 		if err != nil {
 			log.Fatalf("ERROR: %s", err)
@@ -225,6 +246,15 @@ func main() {
 		}
 		fieldName := flag.Arg(2)
 		stringval := flag.Arg(3)
+		if stringval == "-" {
+			// read from stdin
+			reader := bufio.NewReader(os.Stdin)
+			b, err := ioutil.ReadAll(reader)
+			if err != nil {
+				log.Fatalf("ERROR: %s", err)
+			}
+			stringval = string(b)
+		}
 
 		err := c.AdminSetHashField(keyName, fieldName, stringval)
 		if err != nil {

@@ -13,9 +13,11 @@ import (
 )
 
 type Client struct {
-	url        string
-	httpClient *http.Client
-	scopeVars  map[string]string
+	url         string
+	httpClient  *http.Client
+	scopeVars   map[string]string
+	TemplateDir string
+	ConfigDir   string
 }
 
 func InitiateClient(url string) *Client {
